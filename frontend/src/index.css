@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+
+* {
+  margin: 0;
+  padding: 2 pt;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* prevent horizontal bar */
+}
+
+/* avoid forcing exact viewport width (which can trigger scrollbars) */
+#root {
+  min-height: 100vh;
+}
+
+
+/* text clamp without plugin */
+.line-clamp-6 {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* soft fade-in for the back face */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+  animation: fadeIn 220ms ease-out;
+}
