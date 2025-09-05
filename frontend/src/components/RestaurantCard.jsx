@@ -47,14 +47,12 @@ export default function RestaurantCard({
 
   return (
     <div className="[perspective:1200px]">
-      {/* inner that rotates */}
       <div
         className={`relative h-[460px] w-full transition-transform duration-500 ease-out
                     [transform-style:preserve-3d] ${
                       flipped ? "[transform:rotateY(180deg)]" : ""
                     }`}
       >
-        {/* FRONT */}
         <Card
           elevation={2}
           className="absolute inset-0 overflow-hidden !rounded-[15px] shadow-md hover:shadow-lg transition
@@ -116,7 +114,7 @@ export default function RestaurantCard({
               <div className="flex items-center gap-2">
                 <Rating
                   size="medium"
-                  precision={0.5}
+                  precision={0.1}
                   value={Number(rating) || 0}
                   readOnly
                 />
@@ -185,7 +183,7 @@ export default function RestaurantCard({
                     <IconButton
                       size="small"
                       color="primary"
-  onClick={() => onRequestEdit?.({ id, name, rating })}
+                      onClick={() => onRequestEdit?.({ id, name, rating })}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
@@ -297,13 +295,3 @@ export default function RestaurantCard({
   );
 }
 
-/* <RestaurantCard
-  id={restaurant.id}
-  name={restaurant.name}
-  cuisine={restaurant.cuisine}
-  city={restaurant.city}
-  image_url={restaurant.image_url}
-  rating={restaurant.rating}
-  description={restaurant.description}
-  price={restaurant.price}
-/> */

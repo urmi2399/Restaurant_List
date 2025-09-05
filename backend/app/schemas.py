@@ -29,13 +29,12 @@ class RestaurantRead(BaseModel):
 class RestaurantUpdateRating(BaseModel):
     rating: float = Field(..., ge=0, le=5)
 
-# In schemas.py
 
 class RestaurantUpdate(BaseModel):
     name: Optional[str] = None
     cuisine: Optional[str] = None
     image_url: Optional[str] = None
     city: Optional[str] = None
-    rating: Optional[float] = Field(None, ge=0, le=5)  # Rating between 0-5
+    rating: Optional[float] = Field(None, ge=0, le=5)  
     description: Optional[str] = None
     price: Optional[PriceTier] = None

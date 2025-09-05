@@ -10,13 +10,13 @@ from . import models, schemas
 
 
 # Create
-def create_restaurant(db: Session, payload: schemas.RestaurantCreate) -> models.Restaurant:
+def create_restaurant(db: Session, payload: schemas.RestaurantBase) -> models.Restaurant:
     r = models.Restaurant(
         name=payload.name,
         cuisine=payload.cuisine,
         image_url=str(payload.image_url) if payload.image_url else None,
         city=payload.city,
-        rating=payload.rating,          # already rounded by schema
+        rating=payload.rating,         
         description=payload.description,
         price=payload.price,
     )

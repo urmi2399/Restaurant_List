@@ -22,19 +22,10 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const CUISINES = [
-  "Indian",
-  "Italian",
-  "Japanese",
-  "Mexican",
-  "Thai",
-  "American",
-  "Chinese",
-  "Mediterranean",
-  "Korean",
-  "Vietnamese",
-];
-const PRICE = ["$", "$$", "$$$"];
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CUISINES } from "../../src/constants/cuisines";
+import { PRICE } from "../../src/constants/price";
+
 
 const schema = z.object({
   name: z.string().min(2).max(120),
@@ -50,7 +41,7 @@ export default function EditRestaurant({
   open,
   onClose,
   initial,
-  onSaved,
+  onSaved,    
   baseUrl,
 }) {
   const {
@@ -74,6 +65,7 @@ export default function EditRestaurant({
     },
   });
 
+  // Pre-fill the form when dialog opens
   useEffect(() => {
     if (open && initial) {
       reset({
@@ -87,6 +79,57 @@ export default function EditRestaurant({
       });
     }
   }, [open, initial, reset]);
+
+  const queryClient = useQueryClient();
+
+  // --- Mutation: PATCH /restaurants/:id
+  const patchMutation = useMutation({
+    mutationFn: async ({ id, diff }) => {
+      const res = await fetch(`${baseUrl}/restaurants/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(diff),
+      });
+
+      if (res.status === 204) {
+        return { id, ...diff };
+      }
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try {
+          const j = await res.json();
+          msg = j?.detail ? JSON.stringify(j.detail) : msg;
+        } catch {
+          msg = (await res.text()) || msg;
+        }
+        throw new Error(msg);
+      }
+      return res.json();
+    },
+    onSuccess: (updated) => {
+      // Update list cache: ["restaurants"]
+      queryClient.setQueryData(["restaurants"], (old = []) =>
+        Array.isArray(old)
+          ? old.map((r) => (r.id === updated.id ? { ...r, ...updated } : r))
+          : old
+      );
+
+      // Update detail cache: ["restaurant", id] (if you use this key elsewhere)
+      queryClient.setQueryData(["restaurant", updated.id], (old) =>
+        old ? { ...old, ...updated } : updated
+      );
+
+      // Keep parent compatibility if it expects onSaved
+      onSaved?.(updated);
+
+      // Close dialog
+      onClose?.();
+    },
+    onError: (e) => {
+      console.error("Update failed", e);
+      alert(`Failed to save changes: ${e.message || e}`);
+    },
+  });
 
   async function onSubmit(values) {
     if (!initial) return;
@@ -113,43 +156,14 @@ export default function EditRestaurant({
     };
 
     const diff = {};
-    for (const k of Object.keys(norm))
-      if (norm[k] !== baseInitial[k]) diff[k] = norm[k];
+    for (const k of Object.keys(norm)) if (norm[k] !== baseInitial[k]) diff[k] = norm[k];
+
     if (Object.keys(diff).length === 0) {
       onClose?.();
       return;
     }
 
-    try {
-      const res = await fetch(`${baseUrl}/restaurants/${initial.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(diff),
-      });
-
-      if (res.status === 204) {
-        onSaved?.({ ...initial, ...diff });
-        onClose?.();
-        return;
-      }
-      if (!res.ok) {
-        let msg = `HTTP ${res.status}`;
-        try {
-          const j = await res.json();
-          msg = j?.detail ? JSON.stringify(j.detail) : msg;
-        } catch {
-          msg = (await res.text()) || msg;
-        }
-        throw new Error(msg);
-      }
-
-      const updated = await res.json();
-      onSaved?.(updated);
-      onClose?.();
-    } catch (e) {
-      console.error("Update failed", e);
-      alert(`Failed to save changes: ${e.message || e}`);
-    }
+    patchMutation.mutate({ id: initial.id, diff });
   }
 
   const img = watch("image_url");
@@ -159,10 +173,12 @@ export default function EditRestaurant({
   const livePrice = watch("price");
   const liveRating = Number(watch("rating") || 0);
 
+  const isBusy = isSubmitting || patchMutation.isPending;
+
   return (
     <Dialog
       open={open}
-      onClose={isSubmitting ? undefined : onClose}
+      onClose={isBusy ? undefined : onClose}
       maxWidth="sm"
       fullWidth
     >
@@ -170,7 +186,7 @@ export default function EditRestaurant({
 
       <DialogContent dividers sx={{ pt: 2 }}>
         <Stack spacing={2.5}>
-          {/* SECTION: Basic info */}
+          {/* Basic info */}
           <Typography variant="overline" color="text.secondary">
             Basic information
           </Typography>
@@ -256,7 +272,7 @@ export default function EditRestaurant({
 
           <Box>
             <Typography variant="caption" color="text.secondary">
-              Rating (0–5, 0.5 steps)
+              Rating (0–5)
             </Typography>
             <Controller
               name="rating"
@@ -353,12 +369,7 @@ export default function EditRestaurant({
               <Box
                 sx={{ mt: 0.5, display: "flex", alignItems: "center", gap: 1 }}
               >
-                <Rating
-                  size="small"
-                  readOnly
-                  precision={0.1}
-                  value={liveRating}
-                />
+                <Rating size="small" readOnly precision={0.1} value={liveRating} />
                 <Typography variant="caption" color="text.secondary">
                   {liveRating.toFixed(1)}
                 </Typography>
@@ -369,17 +380,17 @@ export default function EditRestaurant({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose} disabled={isSubmitting}>
+        <Button onClick={onClose} disabled={isBusy}>
           Cancel
         </Button>
         <Button
           type="submit"
           onClick={handleSubmit(onSubmit)}
-          disabled={isSubmitting}
+          disabled={isBusy}
           variant="contained"
           color="warning"
         >
-          {isSubmitting ? "Saving…" : "Save"}
+          {isBusy ? "Saving…" : "Save"}
         </Button>
       </DialogActions>
     </Dialog>

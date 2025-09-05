@@ -11,13 +11,13 @@ export default function Navbar() {
   {/* with inibuilt padding anad margin */}
       <Toolbar className="flex justify-between">
         <Typography variant="h6" sx={{ fontWeight: "bold", color: "primary.contrastText" }}>
-          🍽️ Restaurant Discovery
+          🍽️ My Restaurant 
         </Typography>
         <div className="space-x-2">
-          <Button color="inherit" component={RouterLink} to="/">
+          <Button color="inherit"  sx={{ fontWeight: "bold", color: "primary.contrastText" }} component={RouterLink} to="/">
             Home
           </Button>
-          <Button color="inherit" component={RouterLink} to="/add">
+          <Button color="inherit"  sx={{ fontWeight: "bold", color: "primary.contrastText" }}component={RouterLink} to="/add">
             Add Restaurant
           </Button>
           

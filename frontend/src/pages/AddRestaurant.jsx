@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Container,
   Card,
@@ -23,20 +23,12 @@ import PriceChangeIcon from "@mui/icons-material/PriceChange";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { CUISINES } from "../../src/constants/cuisines";
+import { PRICE } from "../../src/constants/price";
 
-const CUISINES = [
-  "Indian",
-  "Italian",
-  "Japanese",
-  "Mexican",
-  "Thai",
-  "American",
-  "Chinese",
-  "Mediterranean",
-  "Korean",
-  "Vietnamese",
-];
-const PRICE = ["$", "$$", "$$$"];
+
 
 // Validation schema
 const schema = z.object({
@@ -60,7 +52,8 @@ const schema = z.object({
 });
 
 export default function AddRestaurant() {
-  const [busy, setBusy] = useState(false);
+  const base = import.meta.env.VITE_API_BASE_URL;
+  const queryClient = useQueryClient();
   const [toast, setToast] = useState({ open: false, msg: "", sev: "success" });
 
   const {
@@ -90,34 +83,43 @@ export default function AddRestaurant() {
     [imageUrl]
   );
 
-  async function onSubmit(values) {
-    try {
-      setBusy(true);
-      const payload = {
-        ...values,
-        image_url: values.image_url?.trim() || undefined,
-        description: values.description?.trim() || undefined,
-      };
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/restaurants`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+  // Mutation: POST /restaurants
+  const createMutation = useMutation({
+    mutationFn: async (payload) => {
+      const res = await fetch(`${base}/restaurants`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+      return res.json();
+    },
+    onSuccess: (created) => {
+      queryClient.setQueryData(["restaurants"], (old = []) =>
+        Array.isArray(old) ? [created, ...old] : [created]
+      );
       setToast({ open: true, msg: "Restaurant added!", sev: "success" });
       reset();
-    } catch (e) {
+    },
+    onError: (e) => {
       setToast({
         open: true,
         msg: e.message || "Failed to add restaurant",
         sev: "error",
       });
-    } finally {
-      setBusy(false);
-    }
+    },
+  });
+
+  const isPending = createMutation.isPending;
+
+  async function onSubmit(values) {
+    const payload = {
+      ...values,
+      image_url: values.image_url?.trim() || undefined,
+      description: values.description?.trim() || undefined,
+    };
+    // Triggers the POST; success/error handled in mutation callbacks
+    await createMutation.mutateAsync(payload);
   }
 
   return (
@@ -129,9 +131,9 @@ export default function AddRestaurant() {
       <Card elevation={2} sx={{ borderRadius: 3 }}>
         <CardContent>
           <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)}>
-            {/* Section: Basic info */}
-            <Typography variant="overline" sx={{ color: "text.secondary" }}>
-              Basic information
+            {/*  Basic info */}
+            <Typography variant="h6"  sx={{ color: "text.secondary" }}>
+              Basic Information
             </Typography>
             <Stack spacing={2} sx={{ mt: 1 }}>
               <TextField
@@ -170,10 +172,9 @@ export default function AddRestaurant() {
               </TextField>
 
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={7} md={7} lg={7}>
+                <Grid item xs={12} sm={6} md={6} lg={6}>
                   <TextField
                     label="City"
-                    fullWidth
                     {...register("city")}
                     error={!!errors.city}
                     helperText={errors.city?.message}
@@ -186,12 +187,11 @@ export default function AddRestaurant() {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={5} md={5} lg={5}>
+
+                <Grid item xs={12} sm={6} md={6} lg={6}>
                   <TextField
                     select
                     label="Price"
-                    fullWidth
-                    defaultValue="$"
                     {...register("price")}
                     error={!!errors.price}
                     helperText={errors.price?.message}
@@ -215,7 +215,7 @@ export default function AddRestaurant() {
               <Grid item xs={12} sm={6}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    Rating (0–5, 0.1 steps)
+                    Rating (0–5)
                   </Typography>
                   <Controller
                     name="rating"
@@ -232,7 +232,6 @@ export default function AddRestaurant() {
                     <Typography variant="caption" color="error">
                       {errors.rating.message}
                     </Typography>
-                    // or: <FormHelperText error>{errors.rating.message}</FormHelperText>
                   )}
                 </Box>
               </Grid>
@@ -240,8 +239,8 @@ export default function AddRestaurant() {
 
             <Divider sx={{ my: 3 }} />
 
-            {/* Section: Media */}
-            <Typography variant="overline" sx={{ color: "text.secondary" }}>
+            {/*  Media */}
+            <Typography variant="h6"  sx={{ color: "text.secondary" }}>
               Media
             </Typography>
             <Stack spacing={2} sx={{ mt: 1 }}>
@@ -300,7 +299,7 @@ export default function AddRestaurant() {
 
             <Divider sx={{ my: 3 }} />
 
-            {/* Section: Description */}
+            {/*  Description */}
             <Typography variant="overline" sx={{ color: "text.secondary" }}>
               Description
             </Typography>
@@ -334,10 +333,10 @@ export default function AddRestaurant() {
                 type="submit"
                 variant="contained"
                 color="warning"
-                disabled={!isValid || busy}
+                disabled={!isValid || isPending}
                 sx={{ borderRadius: 999, fontWeight: 700 }}
               >
-                {busy ? "Saving…" : "Add Restaurant"}
+                {isPending ? "Saving…" : "Add Restaurant"}
               </Button>
             </Stack>
           </Box>
