@@ -9,32 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
 
-// const theme = createTheme({
-//   palette: {
-//     primary: {
-//       main: "#8B9D83", // sage green
-//       contrastText: "#F5F1EB", // cream text
-//     },
-//     secondary: {
-//       main: "#F5F1EB", // cream
-//       contrastText: "#2C2C2C", // charcoal text
-//     },
-//     text: {
-//       primary: "#2C2C2C", // charcoal
-//       secondary: "#8B9D83", // sage
-//     },
-//     background: {
-//       default: "#F5F1EB", // cream page background
-//       paper: "#FFFFFF",
-//     },
-//     warning: {
-//       main: "#D4A574", // gold accent
-//     },
-//   },
-//   typography: {
-//     fontFamily: "Inter, sans-serif",
-//   },
-// })
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

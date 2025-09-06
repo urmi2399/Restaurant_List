@@ -1,12 +1,63 @@
-# React + Vite
+# My Restaurant List — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple full stack restaurant listing app built with React, Material UI, Tailwind CSS, and TanStack React Query.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- Add, edit, delete restaurants
+- Sort, filter, and search in a paginated grid
+- Responsive UI with MUI + Tailwind
+- Flip card UI with detail preview
+- RESTful API integration via React Query
+- Zod + React Hook Form validation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Stack
+
+- React + Vite + JavaScript
+- Tailwind CSS + Material UI (MUI)
+- TanStack React Query
+- React Router
+- Zod + React Hook Form
+
+---
+
+##  Running the App Locally
+
+```bash
+# Start the development server
+npm run dev
+```
+
+The app will be running at: [http://localhost:5173](http://localhost:5173)
+
+---
+
+
+## 📁 Folder Structure
+
+```
+src/
+├── components/         # Reusable UI (Navbar, Footer, Card, Modals)
+├── pages/              # Page-level views (Add, Grid, Detail)
+├── constants/          # Lists for cuisines and prices
+├── theme.js            # MUI theme configuration
+├── App.jsx             # Main routes and layout
+├── main.jsx            # Entry point with providers
+├── index.css           # Tailwind styles
+```
+
+---
+
+## 📋 Environment Variables
+
+Create a `.env` file with:
+
+```
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+---
