@@ -19,7 +19,7 @@ import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 
 export default function RestaurantCard({
-  id, // 👈 needed for navigation
+  id,
   name = "Untitled",
   cuisine = "",
   city = "",
@@ -69,7 +69,6 @@ export default function RestaurantCard({
               className="h-[200px] w-full object-cover"
               style={{ display: "block" }}
             />
-            {/* darker gradient + match radius */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent rounded-t-[15px]" />
             <Typography
               variant="h6"
@@ -253,7 +252,6 @@ export default function RestaurantCard({
               </Typography>
             </div>
 
-            {/* Actions pinned bottom */}
             <div className="!mt-auto !mb-4 grid grid-cols-2 gap-3">
               <Button
                 variant="outlined"

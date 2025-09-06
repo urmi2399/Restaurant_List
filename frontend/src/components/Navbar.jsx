@@ -6,9 +6,7 @@ import { Link as RouterLink } from "react-router-dom"
 
 export default function Navbar() {
   return (
-    // Top Navigation bar container
     <AppBar position="static" color="primary"> 
-  {/* with inibuilt padding anad margin */}
       <Toolbar className="flex justify-between">
         <Typography variant="h6" sx={{ fontWeight: "bold", color: "primary.contrastText" }}>
           🍽️ My Restaurant 

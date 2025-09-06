@@ -390,45 +390,7 @@ export default function RestaurantGrid() {
         </>
       )}
 
-      {/* Confirm Delete */}
-      {/* <Dialog
-        open={confirm.open}
-        onClose={
-          confirm.busy
-            ? undefined
-            : () => setConfirm({ open: false, id: null, name: "", busy: false })
-        }
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle color="error.main">Delete Restaurant</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to permanently delete{" "}
-            <strong>{confirm.name || "this restaurant"}</strong>? This action
-            cannot be undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() =>
-              setConfirm({ open: false, id: null, name: "", busy: false })
-            }
-            disabled={confirm.busy}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={confirmDelete}
-            color="error"
-            variant="contained"
-            disabled={confirm.busy}
-            sx={{ fontWeight: 700 }}
-          >
-            {confirm.busy ? "Deleting…" : "Delete"}
-          </Button>
-        </DialogActions>
-      </Dialog> */}
+
       <DeleteRestaurant
         open={confirm.open}
         name={confirm.name}   
@@ -439,7 +401,6 @@ export default function RestaurantGrid() {
         onConfirm={confirmDelete}
       />
 
-      {/* Edit  */}
       <EditRestaurant
         open={editState.open}
         initial={editState.item}
@@ -448,7 +409,6 @@ export default function RestaurantGrid() {
         onSaved={onEditSaved}
       />
 
-      {/* Snackbar */}
       <Snackbar
         open={toast.open}
         autoHideDuration={3000}

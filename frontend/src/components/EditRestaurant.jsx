@@ -65,7 +65,6 @@ export default function EditRestaurant({
     },
   });
 
-  // Pre-fill the form when dialog opens
   useEffect(() => {
     if (open && initial) {
       reset({
@@ -82,7 +81,6 @@ export default function EditRestaurant({
 
   const queryClient = useQueryClient();
 
-  // --- Mutation: PATCH /restaurants/:id
   const patchMutation = useMutation({
     mutationFn: async ({ id, diff }) => {
       const res = await fetch(`${baseUrl}/restaurants/${id}`, {
@@ -107,22 +105,18 @@ export default function EditRestaurant({
       return res.json();
     },
     onSuccess: (updated) => {
-      // Update list cache: ["restaurants"]
       queryClient.setQueryData(["restaurants"], (old = []) =>
         Array.isArray(old)
           ? old.map((r) => (r.id === updated.id ? { ...r, ...updated } : r))
           : old
       );
 
-      // Update detail cache: ["restaurant", id] (if you use this key elsewhere)
       queryClient.setQueryData(["restaurant", updated.id], (old) =>
         old ? { ...old, ...updated } : updated
       );
 
-      // Keep parent compatibility if it expects onSaved
       onSaved?.(updated);
 
-      // Close dialog
       onClose?.();
     },
     onError: (e) => {

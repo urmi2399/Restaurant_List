@@ -26,7 +26,7 @@ def create_restaurant(db: Session, payload: schemas.RestaurantBase) -> models.Re
     return r
 
 
-# List (all) — simplest form
+# List (all)
 def list_restaurants(db: Session) -> List[models.Restaurant]:
     stmt = select(models.Restaurant)
     return db.execute(stmt).scalars().all()
